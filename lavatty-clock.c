@@ -704,7 +704,7 @@ int parse_options(int argc, char *argv[]) {
 
 void print_help() {
   printf(
-      "Usage: lavat [OPTIONS]\n"
+      "Usage: lavatty-clock [OPTIONS]\n"
       "OPTIONS:\n"
       "  -g                  Enable gradient mode with truecolor support.\n"
       "                      Changes how -c and -k options work.\n"
@@ -749,9 +749,9 @@ void print_help() {
       "(Tip: Zoom out in your terminal before running the program to get a "
       "better resolution of the lava).\n"
       "EXAMPLES:\n"
-      "  lavat -c green -k red        Use named colors in normal mode\n"
-      "  lavat -g -c 00FF00 -k FF0000 Use hex colors in gradient mode\n"
-      "  lavat -G                     Start with gravity mode enabled\n",
+      "  lavatty-clock -c green -k red        Use named colors in normal mode\n"
+      "  lavatty-clock -g -c 00FF00 -k FF0000 Use hex colors in gradient mode\n"
+      "  lavatty-clock -G                     Start with gravity mode enabled\n",
       MIN_NBALLS, MAX_NBALLS);
 }
 

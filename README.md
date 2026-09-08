@@ -1,26 +1,21 @@
-# lavat
+# lavatty-clock
 
-Little program that simulates a lava lamp in the terminal.
+Little program that simulates a lava lamp in the terminal, now with tty-clock on the background!
 ![demo](https://github.com/AngelJumbo/demos/blob/main/lavat/3.gif?raw=true)
 ## Installation
 
 Requirements: A Unix-like system, a C compiler and make.
 
 ```
-git clone https://github.com/AngelJumbo/lavat
-cd lavat
+git clone https://github.com/dodzi-fmz/lavatty-clock
+cd lavatty-clock
 sudo make install
 ```
-
-This program is also available from the following repositories:
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/lavat.svg)](https://repology.org/project/lavat/versions)
-
 
 ## Usage
 
 ```
-Usage: lavat [OPTIONS]
+Usage: lavatty-clock [OPTIONS]
 OPTIONS:
   -g                  Enable gradient mode with truecolor support.
                       Changes how -c and -k options work.
@@ -55,9 +50,9 @@ RUNTIME CONTROLS:
   p                   TURN ON THE PARTY AND CYCLE THROUGH THE PARTY MODES (it can also turns off the party).
 (Tip: Zoom out in your terminal before running the program to get a better resolution of the lava).
 EXAMPLES:
-  lavat -c green -k red        Use named colors in normal mode
-  lavat -g -c 00FF00 -k FF0000 Use hex colors in gradient mode
-  lavat -G                     Start with gravity mode enabled
+  lavatty-clock -c green -k red        Use named colors in normal mode
+  lavatty-clock -g -c 00FF00 -k FF0000 Use hex colors in gradient mode
+  lavatty-clock -G                     Start with gravity mode enabled
 ```
 
 ## Demo
@@ -100,5 +95,6 @@ For the Alacritty and Kitty users I know that the -R option haven't been working
 
 ## Credits
 
+  - Original [repository](https://github.com/AngelJumbo/lavat)
   - This program is made with [Termbox2](https://github.com/termbox/termbox2).
   - [Lava lamp in JavaScript](https://codeguppy.com/site/tutorials/lava-lamp.html)
