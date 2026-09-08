@@ -1,7 +1,7 @@
 # lavatty-clock
 
 Little program that simulates a lava lamp in the terminal, now with tty-clock on the background!
-![demo](https://github.com/AngelJumbo/demos/blob/main/lavat/3.gif?raw=true)
+![demo](https://github.com/dodzi-fmz/lavatty-clock/blob/main/demos/1.gif?raw=true)
 ## Installation
 
 Requirements: A Unix-like system, a C compiler and make.
