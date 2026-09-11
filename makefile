@@ -1,6 +1,6 @@
 PREFIX = /usr/local
 
-lavat: lavatty-clock.c
+lavatty-clock: lavatty-clock.c
 	$(CC) lavatty-clock.c -o lavatty-clock
 
 .PHONY: clean
