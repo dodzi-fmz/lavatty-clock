@@ -17,11 +17,12 @@ sudo make install
 ```
 Usage: lavatty-clock [OPTIONS]
 OPTIONS:
+  -B <COLOR>          Set background color for clock, use hex format RRGGBB (e.g., FF0000 for red).
   -g                  Enable gradient mode with truecolor support.
                       Changes how -c and -k options work.
   -G                  Enable gravity and buoyancy movement (balls heat up at the bottom, rise, cool at the top, then fall) .
   -c <COLOR>          Set color. In normal mode, available colors are: red, blue, yellow, green, cyan, magenta, white, and black.
-                      In gradient mode (-g), use hex format: RRGGBB (e.g., FF0000 for red).
+                      In gradient mode (-g), use hex format.
   -k <COLOR>          Set the rim color. Same format options as -c.
                       In gradient mode, this sets the second color for the gradient.
   -s <SPEED>          Set the speed, from 1 to 10. (default 5)
@@ -57,7 +58,6 @@ EXAMPLES:
 
 ## Demo
 
-Most recent features 
   - -G: gravity + buoyancy movement (balls heat up at the bottom, rise, cool at the top, then fall).
   - -g: truecolor gradient mode (makes `-c`/`-k` accept hex colors like `FF0000` and renders a smooth gradient, defaults to `000000` and `FFFFFF`).
 

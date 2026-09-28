@@ -3,33 +3,31 @@
 #define TB_OPT_TRUECOLOR
 
 #include "termbox.h"
+#include <float.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <float.h>
-#include <math.h>
 
 #define MIN_NBALLS 5
 #define MAX_NBALLS 20
 #define DIGIT_W 3
 #define DIGIT_H 5
 #define SCALE 8
-#define BG_COLOR 0x111111
 
-static const bool number[][15] =
-{
-    {1,1,1,1,0,1,1,0,1,1,0,1,1,1,1},
-    {0,0,1,0,0,1,0,0,1,0,0,1,0,0,1},
-    {1,1,1,0,0,1,1,1,1,1,0,0,1,1,1},
-    {1,1,1,0,0,1,1,1,1,0,0,1,1,1,1},
-    {1,0,1,1,0,1,1,1,1,0,0,1,0,0,1},
-    {1,1,1,1,0,0,1,1,1,0,0,1,1,1,1},
-    {1,1,1,1,0,0,1,1,1,1,0,1,1,1,1},
-    {1,1,1,0,0,1,0,0,1,0,0,1,0,0,1},
-    {1,1,1,1,0,1,1,1,1,1,0,1,1,1,1},
-    {1,1,1,1,0,1,1,1,1,0,0,1,1,1,1},
+static const bool number[][15] = {
+    {1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1},
+    {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+    {1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1},
+    {1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1},
+    {1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1},
+    {1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1},
+    {1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1},
 };
 
 typedef struct {
@@ -48,8 +46,8 @@ static unsigned char lavaMask[512][512];
 uintattr_t pallete[11];
 int baseColor[3];
 int baseColor2[3];
-short gradient1=0;
-short gradient2=0;
+short gradient1 = 0;
+short gradient2 = 0;
 
 static char *custom = NULL;
 static char *custom2 = NULL;
@@ -75,7 +73,9 @@ static int maxX, maxY;
 static int speed;
 static Ball balls[MAX_NBALLS] = {0};
 static struct tb_event event = {0};
-static short colors[]={TB_WHITE, TB_RED, TB_YELLOW, TB_BLUE, TB_GREEN, TB_MAGENTA, TB_CYAN, TB_BLACK };
+static short colors[] = {TB_WHITE, TB_RED,     TB_YELLOW, TB_BLUE,
+                         TB_GREEN, TB_MAGENTA, TB_CYAN,   TB_BLACK};
+static uintattr_t bgColor = 0x111111;
 
 void init_params();
 void event_handler();
@@ -85,90 +85,70 @@ short next_color(short current);
 void fix_rim_color();
 void set_random_colors(short level);
 
-static void clear_clock_mask(void)
-{
-    memset(clockMask,0,sizeof(clockMask));
-}
+static void clear_clock_mask(void) { memset(clockMask, 0, sizeof(clockMask)); }
 
-static void draw_digit(int digit,int ox,int oy)
-{
-    for(int y=0;y<5;y++)
-    {
-        for(int x=0;x<3;x++)
-        {
-            if(number[digit][y*3+x])
-            {
-                for(int yy=0;yy<SCALE;yy++)
-                {
-                    for(int xx=0;xx<SCALE;xx++)
-                    {
-                        int px=ox+x*SCALE+xx;
-                        int py=oy+y*SCALE+yy;
+static void draw_digit(int digit, int ox, int oy) {
+  for (int y = 0; y < 5; y++) {
+    for (int x = 0; x < 3; x++) {
+      if (number[digit][y * 3 + x]) {
+        for (int yy = 0; yy < SCALE; yy++) {
+          for (int xx = 0; xx < SCALE; xx++) {
+            int px = ox + x * SCALE + xx;
+            int py = oy + y * SCALE + yy;
 
-                        if(px>=0 && px<maxX &&
-                           py>=0 && py<maxY)
-                        {
-                            clockMask[py][px]=1;
-                        }
-                    }
-                }
+            if (px >= 0 && px < maxX && py >= 0 && py < maxY) {
+              clockMask[py][px] = 1;
             }
+          }
         }
+      }
     }
+  }
 }
 
-static void draw_colon(int ox,int oy)
-{
-    for(int yy=0;yy<SCALE;yy++)
-    {
-        clockMask[oy+SCALE+yy][ox]=1;
-        clockMask[oy+SCALE+yy][ox+1]=1;
+static void draw_colon(int ox, int oy) {
+  for (int yy = 0; yy < SCALE; yy++) {
+    clockMask[oy + SCALE + yy][ox] = 1;
+    clockMask[oy + SCALE + yy][ox + 1] = 1;
 
-        clockMask[oy+SCALE*3+yy][ox]=1;
-        clockMask[oy+SCALE*3+yy][ox+1]=1;
-    }
+    clockMask[oy + SCALE * 3 + yy][ox] = 1;
+    clockMask[oy + SCALE * 3 + yy][ox + 1] = 1;
+  }
 }
 
-static void draw_clock(void)
-{
-    clear_clock_mask();
+static void draw_clock(void) {
+  clear_clock_mask();
 
-    time_t now=time(NULL);
-    struct tm *tm=localtime(&now);
+  time_t now = time(NULL);
+  struct tm *tm = localtime(&now);
 
-    int h=tm->tm_hour;
-    int m=tm->tm_min;
+  int h = tm->tm_hour;
+  int m = tm->tm_min;
 
-    int digits[4]=
-    {
-        h/10,
-        h%10,
-        m/10,
-        m%10
-    };
+  int digits[4] = {h / 10, h % 10, m / 10, m % 10};
 
-    int width=4*(DIGIT_W*SCALE)+2*(SCALE+2);
-    int startx=(maxX-width)/2;
-    int starty=(maxY-5*SCALE)/2;
+  int width = 4 * (DIGIT_W * SCALE) + 2 * (SCALE + 2);
+  int startx = (maxX - width) / 2;
+  int starty = (maxY - 5 * SCALE) / 2;
 
-    draw_digit(digits[0],startx,starty);
+  draw_digit(digits[0], startx, starty);
 
-    startx+=DIGIT_W*SCALE+2;
+  startx += DIGIT_W * SCALE + 2;
 
-    draw_digit(digits[1],startx,starty);
+  draw_digit(digits[1], startx, starty);
 
-    startx+=DIGIT_W*SCALE+2;
+  startx += DIGIT_W * SCALE + 2;
 
-    if ((tm->tm_sec % 2) == 0)
-      draw_colon(startx, starty);
+  if ((tm->tm_sec % 2) == 0)
+    draw_colon(startx, starty);
 
-    startx+=SCALE+2;
+  startx += SCALE + 2;
 
-    draw_digit(digits[2],startx,starty);
+  draw_digit(digits[2], startx, starty);
 
-    startx+=DIGIT_W*SCALE+2;
+  startx += DIGIT_W * SCALE + 2;
 
-    draw_digit(digits[3],startx,starty);
+  draw_digit(digits[3], startx, starty);
 }
 
 void set_pallete();
@@ -178,7 +158,8 @@ void set_pallete2();
 int set_color(short *var, int *baseColor, char *optarg, short useGradient) {
   if (useGradient) {
     // Parse hex color
-    if (sscanf(optarg, "%02x%02x%02x", &baseColor[0], &baseColor[1], &baseColor[2]) == 3) {
+    if (sscanf(optarg, "%02x%02x%02x", &baseColor[0], &baseColor[1],
+               &baseColor[2]) == 3) {
       return 1;
     } else {
       printf("Invalid hex color format. Use format: RRGGBB\n");
@@ -225,7 +206,6 @@ int main(int argc, char *argv[]) {
   tb_hide_cursor();
 
   init_params();
-
 
   while (1) {
 
@@ -315,7 +295,8 @@ int main(int argc, char *argv[]) {
         }
       } else if (nextY < minY) {
         balls[i].y = minY;
-        // With gravity mode enabled, blobs can linger at the top until they cool.
+        // With gravity mode enabled, blobs can linger at the top until they
+        // cool.
         if (gravityMode) {
           balls[i].vy = 0.0f;
         } else {
@@ -351,7 +332,7 @@ int main(int argc, char *argv[]) {
             float dy = (float)y - balls[k].y;
             float dist_squared = dx * dx + dy * dy;
             if (dist_squared == 0) {
-              sum[j2] += FLT_MAX; 
+              sum[j2] += FLT_MAX;
             } else {
               sum[j2] += (radius * radius) / dist_squared;
             }
@@ -365,18 +346,18 @@ int main(int argc, char *argv[]) {
           lavaMask[j * 2 + 1][i] = 1;
 
         if (!custom) {
-          if(gradient1){
+          if (gradient1) {
             if (sum[0] > sumConst) {
               if (sum[1] > sumConst) {
-                tb_printf(i, j, get_color( sum[0]), get_color(sum[1]), "▀");
+                tb_printf(i, j, get_color(sum[0]), get_color(sum[1]), "▀");
               } else {
-                tb_printf(i, j, get_color( sum[0]), TB_TRUECOLOR_DEFAULT, "▀");
+                tb_printf(i, j, get_color(sum[0]), TB_TRUECOLOR_DEFAULT, "▀");
               }
             } else if (sum[1] > sumConst) {
-              tb_printf(i, j,get_color( sum[1]),TB_TRUECOLOR_DEFAULT, "▄");
+              tb_printf(i, j, get_color(sum[1]), TB_TRUECOLOR_DEFAULT, "▄");
             }
 
-          }else{
+          } else {
             if (sum[0] > sumConst) {
               if (sum[1] > sumConst) {
                 tb_printf(i, j, color2, 0, "█");
@@ -412,30 +393,27 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    if (party>0){
+    if (party > 0) {
       set_random_colors(party);
     }
 
-    for (int y = 0; y < maxY; y += 2)
-    {
-      for (int x = 0; x < maxX; x++)
-      {
+    for (int y = 0; y < maxY; y += 2) {
+      for (int x = 0; x < maxX; x++) {
         int top = clockMask[y][x];
         int bottom = (y + 1 < maxY) ? clockMask[y + 1][x] : 0;
 
         if (!top && !bottom)
-            continue;
+          continue;
 
         int lavaTop = lavaMask[y][x];
         int lavaBottom = (y + 1 < maxY) ? lavaMask[y + 1][x] : 0;
 
         uintattr_t fg = color2;
-        uintattr_t bg = BG_COLOR;
+        uintattr_t bg = bgColor;
 
-        if ((top && lavaTop) || (bottom && lavaBottom))
-        {
-            fg = BG_COLOR;
-            bg = color2;
+        if ((top && lavaTop) || (bottom && lavaBottom)) {
+          fg = bgColor;
+          bg = color2;
         }
 
         tb_printf(x, y / 2, fg, bg, "█");
@@ -513,7 +491,7 @@ void event_handler() {
       break;
     case 'I':
 
-      if (color != TB_WHITE || custom || gradient1 )
+      if (color != TB_WHITE || custom || gradient1)
         if (rim + 1 <= 5) {
           rim++;
           sumConst2 = sumConst * (1 + (float)(0.25 * rim));
@@ -536,7 +514,7 @@ void event_handler() {
       fix_rim_color();
       break;
     case 'p':
-      party = (party+1)%4;
+      party = (party + 1) % 4;
       break;
     case 'q':
     case 'Q':
@@ -577,43 +555,47 @@ void init_params() {
     balls[i].heat = (float)(rand() % 101) / 100.0f;
     balls[i].restTicks = rand() % 30;
   }
-  if(gradient1){
+  if (gradient1) {
     tb_set_output_mode(TB_OUTPUT_TRUECOLOR);
     tb_set_clear_attrs(TB_TRUECOLOR_DEFAULT, TB_TRUECOLOR_DEFAULT);
-    if(gradient2) set_pallete2();
-    else set_pallete();
+    if (gradient2)
+      set_pallete2();
+    else
+      set_pallete();
   }
 }
 
-short next_color(short current){
-  for(int i = 0; i<8; i++){
-    if((current == colors[i])||(current == (colors[i] | TB_BOLD ))){
-      return colors[(i+1)%8];
+short next_color(short current) {
+  for (int i = 0; i < 8; i++) {
+    if ((current == colors[i]) || (current == (colors[i] | TB_BOLD))) {
+      return colors[(i + 1) % 8];
     }
   }
   return colors[0];
 }
 
-void fix_rim_color(){
-  if(color2 == color){
+void fix_rim_color() {
+  if (color2 == color) {
     color2 = color2 | TB_BOLD;
   }
 }
 
-void set_random_colors( short level){
-  if(level==1 || level==3) color = colors[ rand() % 7];
-  if(level==2 || level==3) color2 = colors[ rand() % 7];
+void set_random_colors(short level) {
+  if (level == 1 || level == 3)
+    color = colors[rand() % 7];
+  if (level == 2 || level == 3)
+    color2 = colors[rand() % 7];
   fix_rim_color();
 }
 
 int parse_options(int argc, char *argv[]) {
   if (argc == 1)
     return 1;
-  
+
   int c;
-  // First pass to check for gradient mode
-  optind = 1;  // Reset getopt
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgG")) != -1) {
+  // First pass two check for gradient mode
+  optind = 1; // Reset getopt
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:")) != -1) {
     if (c == 'g') {
       gradient1 = 1;
       if (!tb_has_truecolor()) {
@@ -626,7 +608,7 @@ int parse_options(int argc, char *argv[]) {
 
   // Reset getopt for second pass
   optind = 1;
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgG")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:")) != -1) {
     switch (c) {
     case 'c':
       if (!set_color(&color, baseColor, optarg, gradient1))
@@ -635,7 +617,8 @@ int parse_options(int argc, char *argv[]) {
     case 'k':
       if (!set_color(&color2, baseColor2, optarg, gradient1))
         return 0;
-      gradient2 = gradient1;  // If we're using gradient, enable the second gradient too
+      gradient2 =
+          gradient1; // If we're using gradient, enable the second gradient too
       break;
     case 's':
       speedMult = atoi(optarg);
@@ -655,6 +638,12 @@ int parse_options(int argc, char *argv[]) {
       radiusIn = 100 + atoi(optarg) * 5;
       if (radiusIn > 150 || radiusIn < 100) {
         printf("Invalid radius, only values between 1 and 10 are allowed\n");
+        return 0;
+      }
+      break;
+    case 'B':
+      if (sscanf(optarg, "%x", &bgColor) != 1) {
+        printf("Invalid background color, use HEX format");
         return 0;
       }
       break;
@@ -706,14 +695,20 @@ void print_help() {
   printf(
       "Usage: lavatty-clock [OPTIONS]\n"
       "OPTIONS:\n"
+      "  -B <COLOR>          Set background color for clock, use hex format: "
+      "RRGGBB "
+      "(e.g., FF0000 for red).\n"
       "  -g                  Enable gradient mode with truecolor support.\n"
       "                      Changes how -c and -k options work.\n"
-  "  -G                  Enable gravity and buoyancy movement (balls heat up at the bottom, rise, cool at the top, then fall).\n"
-      "  -c <COLOR>          Set color. In normal mode, available colors are: red, blue, yellow, "
+      "  -G                  Enable gravity and buoyancy movement (balls heat "
+      "up at the bottom, rise, cool at the top, then fall).\n"
+      "  -c <COLOR>          Set color. In normal mode, available colors are: "
+      "red, blue, yellow, "
       "green, cyan, magenta, white, and black.\n"
-      "                      In gradient mode (-g), use hex format: RRGGBB (e.g., FF0000 for red).\n"
+      "                      In gradient mode (-g), use hex format.\n"
       "  -k <COLOR>          Set the rim color. Same format options as -c.\n"
-      "                      In gradient mode, this sets the second color for the gradient.\n"
+      "                      In gradient mode, this sets the second color for "
+      "the gradient.\n"
       "  -s <SPEED>          Set the speed, from 1 to 10. (default 5)\n"
       "  -r <RADIUS>         Set the radius of the metaballs, from 1 to 10. "
       "(default: 5)\n"
@@ -744,46 +739,47 @@ void print_help() {
       "  k                   Change the rim color of the metaballs.\n"
       "  +                   Increase speed.\n"
       "  -                   Decrease speed.\n"
-      "  p                   TURN ON THE PARTY AND CYCLE THROUGH THE PARTY MODES "
+      "  p                   TURN ON THE PARTY AND CYCLE THROUGH THE PARTY "
+      "MODES "
       "(it can also turns off the party).\n"
       "(Tip: Zoom out in your terminal before running the program to get a "
       "better resolution of the lava).\n"
       "EXAMPLES:\n"
       "  lavatty-clock -c green -k red        Use named colors in normal mode\n"
       "  lavatty-clock -g -c 00FF00 -k FF0000 Use hex colors in gradient mode\n"
-      "  lavatty-clock -G                     Start with gravity mode enabled\n",
+      "  lavatty-clock -G                     Start with gravity mode "
+      "enabled\n",
       MIN_NBALLS, MAX_NBALLS);
 }
 
-void set_pallete(){
-  int avgColor= (baseColor[0] + baseColor[1] + baseColor[2])/3;
-  int blackfactor[5]; 
-  int whitefactor[5]; 
-  for(int i=1 ;i<6;i++){
-    blackfactor[i-1]=(6-i)*avgColor/5;
-    whitefactor[i-1]=i*(255-avgColor)/5;
+void set_pallete() {
+  int avgColor = (baseColor[0] + baseColor[1] + baseColor[2]) / 3;
+  int blackfactor[5];
+  int whitefactor[5];
+  for (int i = 1; i < 6; i++) {
+    blackfactor[i - 1] = (6 - i) * avgColor / 5;
+    whitefactor[i - 1] = i * (255 - avgColor) / 5;
   }
 
-  for(int i=0 ;i<5;i++){
+  for (int i = 0; i < 5; i++) {
     int r, g, b;
-    float factor = (1 - ((float)blackfactor[i]/(avgColor)));
-    r = baseColor[0]*factor;
-    g = baseColor[1]*factor;
-    b = baseColor[2]*factor;
-    pallete[i]= (r << 16) | (g << 8) | b;
-    r = baseColor[0] + (255-baseColor[0])*whitefactor[i]/(255-avgColor);
-    g = baseColor[1] + (255-baseColor[1])*whitefactor[i]/(255-avgColor);
-    b = baseColor[2] + (255-baseColor[2])*whitefactor[i]/(255-avgColor);
-    pallete[i+6] = (r << 16) | (g << 8) | b;
-
+    float factor = (1 - ((float)blackfactor[i] / (avgColor)));
+    r = baseColor[0] * factor;
+    g = baseColor[1] * factor;
+    b = baseColor[2] * factor;
+    pallete[i] = (r << 16) | (g << 8) | b;
+    r = baseColor[0] + (255 - baseColor[0]) * whitefactor[i] / (255 - avgColor);
+    g = baseColor[1] + (255 - baseColor[1]) * whitefactor[i] / (255 - avgColor);
+    b = baseColor[2] + (255 - baseColor[2]) * whitefactor[i] / (255 - avgColor);
+    pallete[i + 6] = (r << 16) | (g << 8) | b;
   }
-  pallete[5]= (baseColor[0] << 16) | (baseColor[1] << 8) | baseColor[2];
+  pallete[5] = (baseColor[0] << 16) | (baseColor[1] << 8) | baseColor[2];
 }
 
 void set_pallete2() {
   for (int i = 0; i < 11; i++) {
-    float t = (float)i / (11 - 1); 
-    
+    float t = (float)i / (11 - 1);
+
     int r = (1 - t) * baseColor[0] + t * baseColor2[0];
     int g = (1 - t) * baseColor[1] + t * baseColor2[1];
     int b = (1 - t) * baseColor[2] + t * baseColor2[2];
@@ -793,13 +789,13 @@ void set_pallete2() {
 }
 
 uintattr_t get_color(float val) {
-    val = (val - sumConst)/(0.001*(rim+1)); 
-    
-    if (val > 10) {
-        return pallete[10];       
-    } else if (val < 0) {
-        return pallete[0];        
-    }
+  val = (val - sumConst) / (0.001 * (rim + 1));
 
-    return pallete[(int)val];     
+  if (val > 10) {
+    return pallete[10];
+  } else if (val < 0) {
+    return pallete[0];
+  }
+
+  return pallete[(int)val];
 }
