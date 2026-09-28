@@ -210,6 +210,8 @@ int main(int argc, char *argv[]) {
 
   while (1) {
 
+    tb_clear();
+
     draw_clock();
 
     memset(lavaMask, 0, sizeof(lavaMask));
@@ -417,13 +419,15 @@ int main(int argc, char *argv[]) {
           bg = color2;
         }
 
-        tb_printf(x, y / 2, fg, bg, "█");
+        fg &= ~TB_BLINK;
+        bg &= ~TB_BLINK;
+
+        tb_set_cell(x, y / 2, 0x2588, fg, bg);
       }
     }
 
     tb_present();
     usleep(speed);
-    tb_clear();
 
     tb_peek_event(&event, 10);
 
