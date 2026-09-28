@@ -422,7 +422,7 @@ int main(int argc, char *argv[]) {
         fg &= ~TB_BLINK;
         bg &= ~TB_BLINK;
 
-        tb_set_cell(x, y / 2, 0x2588, fg, bg);
+        tb_printf(x, y / 2, fg, bg, "█");
       }
     }
 
@@ -565,6 +565,7 @@ void init_params() {
     balls[i].heat = (float)(rand() % 101) / 100.0f;
     balls[i].restTicks = rand() % 30;
   }
+
   if (gradient1) {
     tb_set_output_mode(TB_OUTPUT_TRUECOLOR);
     tb_set_clear_attrs(TB_TRUECOLOR_DEFAULT, TB_TRUECOLOR_DEFAULT);
