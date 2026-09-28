@@ -36,6 +36,7 @@ OPTIONS:
   -C                  Retain the entire lava inside the terminal.
                       It may not work well with a lot of balls or with a bigger radius than the default one.
   -p <MODE>           PARTY!! THREE MODES AVAILABLE (p1, p2 and p3).
+  -S                  Screensaver mode.
   -h                  Print help.
 RUNTIME CONTROLS:
   i                   Increase radius of the metaballs.

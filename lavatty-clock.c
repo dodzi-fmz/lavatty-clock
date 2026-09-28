@@ -59,6 +59,7 @@ static short speedMult = 5;
 static short rim = 1;
 static short contained = 0;
 static short gravityMode = 0;
+static short screensaver = 0;
 static float gravityStrength = 0.12f;
 static float buoyancyStrength = 0.22f;
 static float heatGain = 0.035f;
@@ -448,6 +449,11 @@ void event_handler() {
       exit(0);
     }
 
+    if (screensaver) {
+      tb_shutdown();
+      exit(0);
+    }
+
     switch (event.ch) {
     case '-':
     case '_':
@@ -595,7 +601,7 @@ int parse_options(int argc, char *argv[]) {
   int c;
   // First pass two check for gradient mode
   optind = 1; // Reset getopt
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:S")) != -1) {
     if (c == 'g') {
       gradient1 = 1;
       if (!tb_has_truecolor()) {
@@ -608,7 +614,7 @@ int parse_options(int argc, char *argv[]) {
 
   // Reset getopt for second pass
   optind = 1;
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:S")) != -1) {
     switch (c) {
     case 'c':
       if (!set_color(&color, baseColor, optarg, gradient1))
@@ -619,6 +625,9 @@ int parse_options(int argc, char *argv[]) {
         return 0;
       gradient2 =
           gradient1; // If we're using gradient, enable the second gradient too
+      break;
+    case 'S':
+      screensaver = 1;
       break;
     case 's':
       speedMult = atoi(optarg);
@@ -643,7 +652,7 @@ int parse_options(int argc, char *argv[]) {
       break;
     case 'B':
       if (sscanf(optarg, "%x", &bgColor) != 1) {
-        printf("Invalid background color, use HEX format");
+        printf("Invalid background color, use HEX format\n");
         return 0;
       }
       break;
@@ -727,6 +736,7 @@ void print_help() {
       "                      It may not work well with a lot of balls or with"
       " a bigger radius than the default one.\n"
       "  -p <MODE>           PARTY!! THREE MODES AVAILABLE (p1, p2 and p3).\n"
+      "  -S                  Screensaver mode.\n"
       "  -h                  Print help.\n"
       "RUNTIME CONTROLS:\n"
       "  i                   Increase radius of the metaballs.\n"
