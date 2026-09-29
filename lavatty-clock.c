@@ -15,7 +15,6 @@
 #define MAX_NBALLS 20
 #define DIGIT_W 3
 #define DIGIT_H 5
-#define SCALE 8
 
 static const bool number[][15] = {
     {1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1},
@@ -55,6 +54,7 @@ static short color = TB_WHITE;
 static short color2 = TB_WHITE;
 static short party = 0;
 static int nballs = 10;
+static short scale = 8;
 static short speedMult = 5;
 static short rim = 1;
 static short contained = 0;
@@ -92,10 +92,10 @@ static void draw_digit(int digit, int ox, int oy) {
   for (int y = 0; y < 5; y++) {
     for (int x = 0; x < 3; x++) {
       if (number[digit][y * 3 + x]) {
-        for (int yy = 0; yy < SCALE; yy++) {
-          for (int xx = 0; xx < SCALE; xx++) {
-            int px = ox + x * SCALE + xx;
-            int py = oy + y * SCALE + yy;
+        for (int yy = 0; yy < scale; yy++) {
+          for (int xx = 0; xx < scale; xx++) {
+            int px = ox + x * scale + xx;
+            int py = oy + y * scale + yy;
 
             if (px >= 0 && px < maxX && py >= 0 && py < maxY) {
               clockMask[py][px] = 1;
@@ -108,12 +108,12 @@ static void draw_digit(int digit, int ox, int oy) {
 }
 
 static void draw_colon(int ox, int oy) {
-  for (int yy = 0; yy < SCALE; yy++) {
-    clockMask[oy + SCALE + yy][ox] = 1;
-    clockMask[oy + SCALE + yy][ox + 1] = 1;
+  for (int yy = 0; yy < scale; yy++) {
+    clockMask[oy + scale + yy][ox] = 1;
+    clockMask[oy + scale + yy][ox + 1] = 1;
 
-    clockMask[oy + SCALE * 3 + yy][ox] = 1;
-    clockMask[oy + SCALE * 3 + yy][ox + 1] = 1;
+    clockMask[oy + scale * 3 + yy][ox] = 1;
+    clockMask[oy + scale * 3 + yy][ox + 1] = 1;
   }
 }
 
@@ -128,26 +128,26 @@ static void draw_clock(void) {
 
   int digits[4] = {h / 10, h % 10, m / 10, m % 10};
 
-  int width = 4 * (DIGIT_W * SCALE) + 2 * (SCALE + 2);
+  int width = 4 * (DIGIT_W * scale) + 2 * (scale + 2);
   int startx = (maxX - width) / 2;
-  int starty = (maxY - 5 * SCALE) / 2;
+  int starty = (maxY - 5 * scale) / 2;
 
   draw_digit(digits[0], startx, starty);
 
-  startx += DIGIT_W * SCALE + 2;
+  startx += DIGIT_W * scale + 2;
 
   draw_digit(digits[1], startx, starty);
 
-  startx += DIGIT_W * SCALE + 2;
+  startx += DIGIT_W * scale + 2;
 
   if ((tm->tm_sec % 2) == 0)
     draw_colon(startx, starty);
 
-  startx += SCALE + 2;
+  startx += scale + 2;
 
   draw_digit(digits[2], startx, starty);
 
-  startx += DIGIT_W * SCALE + 2;
+  startx += DIGIT_W * scale + 2;
 
   draw_digit(digits[3], startx, starty);
 }
@@ -606,7 +606,7 @@ int parse_options(int argc, char *argv[]) {
   int c;
   // First pass two check for gradient mode
   optind = 1; // Reset getopt
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:S")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:SW:")) != -1) {
     if (c == 'g') {
       gradient1 = 1;
       if (!tb_has_truecolor()) {
@@ -619,7 +619,7 @@ int parse_options(int argc, char *argv[]) {
 
   // Reset getopt for second pass
   optind = 1;
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:S")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:SW:")) != -1) {
     switch (c) {
     case 'c':
       if (!set_color(&color, baseColor, optarg, gradient1))
@@ -631,6 +631,12 @@ int parse_options(int argc, char *argv[]) {
       gradient2 =
           gradient1; // If we're using gradient, enable the second gradient too
       break;
+    case 'W':
+      scale = atoi(optarg);
+      if (scale > 10 || scale <= 0) {
+        printf("Invalid scale, only values between 1 and 10 are allowed\n");
+        return 0;
+      }
     case 'S':
       screensaver = 1;
       break;
@@ -711,6 +717,7 @@ void print_help() {
       "OPTIONS:\n"
       "  -B <COLOR>          Set background color for clock, use hex format: "
       "RRGGBB "
+      "  -W <SCALE>          Set clock scale, from 1 to 10. (default 8)\n"
       "(e.g., FF0000 for red).\n"
       "  -g                  Enable gradient mode with truecolor support.\n"
       "                      Changes how -c and -k options work.\n"
