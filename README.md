@@ -18,7 +18,7 @@ sudo make install
 Usage: lavatty-clock [OPTIONS]
 OPTIONS:
   -B <COLOR>          Set background color for clock, use hex format RRGGBB (e.g., FF0000 for red).
-  -W <SCALE>          Set clock scale, from 1 to 10. (default 8)
+  -W <SCALE>          Set clock scale. (default 8)
   -g                  Enable gradient mode with truecolor support.
                       Changes how -c and -k options work.
   -G                  Enable gravity and buoyancy movement (balls heat up at the bottom, rise, cool at the top, then fall) .
