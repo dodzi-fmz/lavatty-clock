@@ -629,7 +629,7 @@ int parse_options(int argc, char *argv[]) {
   int c;
   // First pass two check for gradient mode
   optind = 1; // Reset getopt
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:SW:")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:W:S")) != -1) {
     if (c == 'g') {
       gradient1 = 1;
       if (!tb_has_truecolor()) {
@@ -642,7 +642,7 @@ int parse_options(int argc, char *argv[]) {
 
   // Reset getopt for second pass
   optind = 1;
-  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:SW:")) != -1) {
+  while ((c = getopt(argc, argv, ":c:k:s:r:R:b:F:Cp:hgGB:W:S")) != -1) {
     switch (c) {
     case 'c':
       if (!set_color(&color, baseColor, optarg, gradient1))
@@ -656,6 +656,10 @@ int parse_options(int argc, char *argv[]) {
       break;
     case 'W':
       scale = atoi(optarg);
+      if (scale > 30 || scale < 1) {
+        printf("Invalid scale, only values between 1 and 30 are allowed\n");
+        return 0;
+      }
     case 'S':
       screensaver = 1;
       break;
@@ -736,7 +740,7 @@ void print_help() {
       "OPTIONS:\n"
       "  -B <COLOR>          Set background color for clock, use hex format: "
       "RRGGBB "
-      "  -W <SCALE>          Set clock scale. (default 8)\n"
+      "  -W <SCALE>          Set clock scale, from 1 to 30. (default 8)\n"
       "(e.g., FF0000 for red).\n"
       "  -g                  Enable gradient mode with truecolor support.\n"
       "                      Changes how -c and -k options work.\n"
